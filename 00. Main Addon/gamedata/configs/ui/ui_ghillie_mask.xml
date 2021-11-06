@@ -1,0 +1,7 @@
+<w>
+	
+		<gmask x="0" y="0" width="1024" height="768" stretch="1">
+			<texture>dinamic_hud\ghillie_mask.dds</texture>
+		</gmask>
+
+</w>

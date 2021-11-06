@@ -1,0 +1,37 @@
+<!-- 
+	Anomaly Modconfiguration Menu strings
+	
+-->
+
+<string_table>
+
+
+	<string id="ui_mcm_poof_title">
+		<text>Настройки видимости Костюм Гилли</text>
+	</string>
+	<string id="ui_mcm_menu_poof">
+		<text>Костюм Гилли</text>
+	</string>
+	<string id="ui_mcm_poof_enable_mask">
+		<text>Включить наложение листвы гилли</text>
+	</string>
+	<string id="ui_mcm_poof_visibility">
+		<text>Дальность обзора NPC</text>
+	</string>
+	<string id="ui_mcm_poof_visibility_desc">
+		<text>Базовый множитель дальности обзора NPC. Более низкие значения делают вас менее заметным на расстоянии</text>
+	</string>
+	<string id="ui_mcm_poof_angle">
+		<text>Диапазон NPC FOV</text>
+	</string>
+	<string id="ui_mcm_poof_angle_desc">
+		<text>Базовый множитель поля зрения NPC. Более низкие значения делают вас менее заметными с их сторон</text>
+	</string>
+
+	<string id="ui_mcm_poof_firing_alert">
+		<text>Коэффициент предупреждения о срабатывании огня</text>
+	</string>
+	<string id="ui_mcm_poof_firing_alert_desc">
+		<text>Множитель для предупреждения NPC при стрельбе из оружия без глушителя. Более высокие значения будут предупреждать их больше</text>
+	</string>
+</string_table>

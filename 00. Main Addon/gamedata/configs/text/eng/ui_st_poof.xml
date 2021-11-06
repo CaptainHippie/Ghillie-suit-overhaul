@@ -1,0 +1,37 @@
+<!-- 
+	Anomaly Modconfiguration Menu strings
+	
+-->
+
+<string_table>
+
+
+	<string id="ui_mcm_poof_title">
+		<text>Ghillie Suit Visibility Settings</text>
+	</string>
+	<string id="ui_mcm_menu_poof">
+		<text>Ghillie Suit Config</text>
+	</string>
+	<string id="ui_mcm_poof_enable_mask">
+		<text>Enable Ghillie foliage overlay</text>
+	</string>
+	<string id="ui_mcm_poof_visibility">
+		<text>NPC vision range</text>
+	</string>
+	<string id="ui_mcm_poof_visibility_desc">
+		<text>Base NPC vision range multiplier. Lower values makes you less visible over from a distance</text>
+	</string>
+	<string id="ui_mcm_poof_angle">
+		<text>NPC FOV range</text>
+	</string>
+	<string id="ui_mcm_poof_angle_desc">
+		<text>Base NPC field of view multiplier. Lower values makes you less visible from their sides</text>
+	</string>
+
+	<string id="ui_mcm_poof_firing_alert">
+		<text>Firing Alert Coefficient</text>
+	</string>
+	<string id="ui_mcm_poof_firing_alert_desc">
+		<text>Multiplier for alerting NPCs when firing with a non silenced weapon. Higher values would alert them more</text>
+	</string>
+</string_table>

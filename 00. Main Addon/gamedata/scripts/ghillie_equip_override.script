@@ -1,0 +1,134 @@
+local ghillie_flag = false
+function ghillie_check()
+	local back = db.actor:item_in_slot(13)
+	ghillie_flag = back and (back:section() == "ghillie_outfit")
+end
+
+local armor = nil
+local bkpk = nil
+local function record_slot_items()  --saving items in slot on startup and updating it whenever it is changed
+	armor = db.actor:item_in_slot(7)
+	bkpk = db.actor:item_in_slot(13)
+end
+
+local function outfit_equip(obj) --unequipping ghillie when a new outfit is equipped
+ghillie_check()
+local ghillie = db.actor:item_in_slot(13)
+	if IsOutfit(obj) and ghillie_flag and (obj:section() ~= "ghillie_outfit") then
+	db.actor:move_to_ruck(ghillie)
+	end
+end
+
+local function outfit_unequip(objj)  --unequipping ghillie whenever an outfit is unequipped
+ghillie_check()
+local ghillie = db.actor:item_in_slot(13)
+	if (armor and objj:id() == armor:id()) and ghillie_flag then
+	db.actor:move_to_ruck(ghillie)
+	end
+end
+
+local ar_id = {}
+function check_artifact(snk,item)
+	ar_id[#ar_id + 1] = item
+end
+
+local function ghil_unequip(ghil)  --reequipping the outfit when ghillie is removed
+ghillie_check()
+	local suit = db.actor:item_in_slot(7)
+	if  suit and (bkpk and ghil:id() == bkpk:id()) and (not ghillie_flag) and (ghil:section() == "ghillie_outfit") then
+		db.actor:iterate_belt(check_artifact,snk)
+		db.actor:move_to_slot(suit, 7)
+		CreateTimeEvent("snk_move_artifacts", "af_equip", 0.2, af_equip)
+	end
+end
+
+function af_equip()  --for moving attachments back to their slots when ghillie is unequipped
+	for i = 1, #ar_id do
+	db.actor:move_to_belt(ar_id[i])
+	end
+ar_id = {}
+return true
+end
+
+function utils_ui.UIInfoItem:GetType(sec)  --monke patch to remove ghillie stat display
+	if ini_sys:r_string_ex(sec, "ammo_class") and (not IsItem("fake_ammo_wpn", sec)) then
+		return "weapon"
+	elseif (IsItem("outfit", sec) and (sec ~= "ghillie_outfit")) or IsItem("helmet", sec) then
+		return "outfit"
+	elseif IsItem("artefact", sec) then
+		return "artefact"
+	elseif IsItem("consumable", sec) then
+		return "booster"
+	elseif IsItem("backpack", sec) then
+		return "backpack"
+	end
+	return "none"
+end
+
+local found_it = nil
+function find_ghillie(snek,item)
+	if item:section() == "ghillie_outfit" then
+	found_it = item
+	end
+end
+
+local function on_key_release(key)
+	if (key ~= DIK_keys.DIK_BACKSLASH) then return end
+	local gh = db.actor:item_in_slot(13)
+	if gh and gh:section() == "ghillie_outfit" then
+		db.actor:move_to_ruck(gh)
+	return end
+	db.actor:iterate_ruck(find_ghillie,snek)
+	if found_it and not (gh and gh:section() == "ghillie_outfit") then
+		db.actor:move_to_slot(found_it, 13)
+		found_it = nil
+	end
+end
+
+local worn_on_save = false
+local function save_state(mdata)
+ghillie_check()
+	mdata.snk_gflag_save = ghillie_flag
+end
+
+local function load_state(mdata)
+	worn_on_save = mdata.snk_gflag_save or false
+end
+
+function move_on_load()
+local g_item = db.actor:item_in_slot(13)
+	if worn_on_save and g_item and g_item:section() == "ghillie_outfit" then
+		db.actor:iterate_belt(check_artifact,snk)
+		db.actor:move_to_slot(g_item, 13)
+		CreateTimeEvent("snk_move_artifacts", "af_equip", 0.2, af_equip)
+	end
+end
+
+local count = 0
+local function actor_on_update()
+count = count + 1
+	if count == 2 then
+	local vis = db.actor:get_visual_name()
+	local ghillie_visual = SYS_GetParam(0, "ghillie_outfit", "actor_visual")
+		if vis ~= ghillie_visual then
+			move_on_load()
+		end
+	end
+	if count >= 6 then
+		UnregisterScriptCallback("actor_on_update", actor_on_update)
+		RegisterScriptCallback("actor_item_to_slot", outfit_equip)
+		RegisterScriptCallback("actor_item_to_ruck", outfit_unequip)
+		RegisterScriptCallback("actor_on_item_drop", outfit_unequip)
+		RegisterScriptCallback("actor_item_to_ruck", ghil_unequip)
+		RegisterScriptCallback("actor_on_item_drop", ghil_unequip)
+	end
+end
+
+function on_game_start()
+	RegisterScriptCallback("actor_on_first_update", record_slot_items)
+	RegisterScriptCallback("actor_item_to_slot", record_slot_items)
+	RegisterScriptCallback("on_key_release",on_key_release)
+	RegisterScriptCallback("actor_on_update", actor_on_update)
+	RegisterScriptCallback("save_state", save_state)
+	RegisterScriptCallback("load_state", load_state)
+end

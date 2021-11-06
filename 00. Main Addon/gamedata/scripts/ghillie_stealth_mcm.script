@@ -1,0 +1,20 @@
+local defaults = {
+	["enable_mask"] = true,
+    ["visibility"] = 60,
+	["angle"] = 130,
+}
+
+function get_config(key)
+    if ui_mcm then return ui_mcm.get("poof/"..key) else return defaults[key] end
+end
+
+function on_mcm_load()
+    op = { id= "poof",sh=true ,gr={
+            { id= "title",type= "slide",link= "ui_options_slider_player",text="ui_mcm_poof_title",size= {512,50},spacing= 20 },
+            {id = "enable_mask", type = "check", val = 1, def = true},
+			{id = "visibility", type = "track", val = 2, min = 20, max = 80, step = 0.5, def = 60},
+			{id = "angle", type = "track", val = 2, min = 100, max = 160,step = 1, def = 130}, 
+		}
+    }	
+    return op
+end

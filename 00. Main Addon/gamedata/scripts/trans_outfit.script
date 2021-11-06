@@ -1,0 +1,175 @@
+local ghil_blindness_koeff = 60
+local ghil_fov_koeff = 130
+
+function on_option_change()
+	ghil_blindness_koeff = ghillie_stealth_mcm.get_config("visibility")
+	ghil_fov_koeff = ghillie_stealth_mcm.get_config("angle")
+end
+
+local function actor_on_first_update()
+weather_check()
+time_check()
+end
+
+local wearing_ghillie = false
+local function is_wearing_ghillie()
+local bak = db.actor:item_in_slot(13)
+	if bak and (bak:section() == "ghillie_outfit") then
+	wearing_ghillie = true
+	else wearing_ghillie = false
+	end
+end
+
+local surface = false
+local camo_surfaces = {"earth", "dirt", "grass", "bush"}
+local function actor_on_footstep(mat)
+	for n, val in next, camo_surfaces do
+		if string.find(mat, val) then
+			surface = true
+			return
+		else
+			surface = false
+		end
+	end
+end
+
+local stance_k = 0.7
+local stance_fov = 0.8
+function stance_check()
+	if IsMoveState('mcCrouch') and IsMoveState('mcAccel') then
+		stance_k, stance_fov = 0.41, 0.44
+	elseif IsMoveState('mcCrouch') then
+		stance_k, stance_fov = 0.7, 0.72
+	else stance_k, stance_fov = 1, 1
+	end
+end
+
+local gun_fired = false
+function weapon_fire()
+local wpn = db.actor:active_item()
+	if wpn and (IsWeapon(wpn)) and (not IsMelee(wpn)) and (not (wpn:weapon_is_silencer())) then
+		gun_fired = true
+		CreateTimeEvent("hehehe", "wpn_fired_stop", 2.5, wpn_fired_stop)
+	end
+end
+function wpn_fired_stop()
+	gun_fired = false
+	return true
+end
+
+local dumb = false
+function flash_light()
+	local torch = db.actor:item_in_slot(10)
+	local flash = db.actor:item_in_slot(9)
+	if  (torch and torch:torch_enabled()) or (flash and (flash:section() == "device_flashlight") and db.actor:active_detector()) then
+		dumb = true
+	else dumb = false
+	end
+end
+
+local weather_mult = 0.8
+local weather_fov = 0.92
+local w_range = {rain = 0.67, storm = 0.72, foggy = 0.81, cloudy = 0.89, partly = 0.95, clear = 1}
+local w_fov = {rain = 0.88, storm = 0.89, foggy = 0.91, cloudy = 0.93, partly = 0.97, clear = 1}
+function weather_check()
+local current_weather = level_weathers.get_weather_manager():get_curr_weather()
+weather_mult = w_range[current_weather]
+weather_fov = w_fov[current_weather]
+end
+
+local time_mult = 0.92
+function time_check()
+local hrs = level.get_time_hours()
+	if (hrs > 21 or hrs < 5) then time_mult = 0.85    --between 10pm and 4am
+	elseif (hrs > 9 and hrs < 17) then time_mult = 1  --between 10am and 4pm
+	else
+		if hrs >= 5 and hrs <= 9 then   --5am to 9am increment 1 hr
+		time_mult = 1 - (10-hrs) * 0.025
+		end
+		if hrs >= 17 and hrs <= 21 then --5pm to 9pm increment 1 hr
+		time_mult = 1 - (hrs-16) * 0.025
+		end
+	end
+end
+
+local tmr = 0
+local tmr_step = 120000
+function get_weather_n_time()
+tg = time_global()
+if tg < tmr then return end
+tmr = tg + tmr_step
+	weather_check()
+	time_check()
+end
+
+local range1, angle1
+function transparent_gg()
+	if not db.actor then return end
+	if not wearing_ghillie then return end
+stance_check()
+flash_light()
+	if surface and not (dumb or gun_fired) then
+	range1 = stance_k * weather_mult * time_mult * ghil_blindness_koeff
+	angle1 = stance_fov * weather_fov * ghil_fov_koeff
+	else
+	range1 = 80
+	angle1 = 160
+	end
+local seen = false
+	for i = 1,#db.OnlineStalkers do
+	local id = db.OnlineStalkers[i]
+	local npc = db.storage[id] and db.storage[id].object or level.object_by_id(id)
+	seen = npc and npc:see(db.actor)
+		if npc and npc:alive() then
+			if (not seen) then
+				npc:set_range(range1)
+				npc:set_fov(angle1)
+			else
+				npc:set_range(80)
+				npc:set_fov(160)
+			end
+		end
+	end
+end
+
+function timer_trans()
+	timer_transparent = timer_transparent + 1
+	if timer_transparent >= 50 then
+		timer_transparent = 0
+		transparent_gg()
+	end
+end
+
+local bkpak = nil
+function record_backpack_slot()
+	bkpak = db.actor:item_in_slot(13)
+end
+
+local function reset_vision(ghillie)
+	if (ghillie and (ghillie:section() ~= "ghillie_outfit")) or (bkpak and ghillie:id() ~= bkpak:id()) then
+	return end
+	for zz = 1,#db.OnlineStalkers do
+	local npc_id = db.OnlineStalkers[zz]
+	local npcx = db.storage[npc_id] and db.storage[npc_id].object or level.object_by_id(npc_id)
+		if npcx and npcx:alive() then
+			npcx:set_range(80)
+			npcx:set_fov(160)
+		end
+	end
+end
+
+function on_game_start()
+	RegisterScriptCallback("actor_on_first_update", actor_on_first_update)
+	RegisterScriptCallback("actor_on_update", get_weather_n_time)
+	RegisterScriptCallback("actor_on_footstep", actor_on_footstep)
+	RegisterScriptCallback("actor_on_weapon_fired", weapon_fire)
+	RegisterScriptCallback("actor_item_to_slot", is_wearing_ghillie)
+	RegisterScriptCallback("actor_item_to_ruck", is_wearing_ghillie)
+	RegisterScriptCallback("actor_on_item_drop", is_wearing_ghillie)
+	RegisterScriptCallback("actor_item_to_ruck", reset_vision)
+	RegisterScriptCallback("actor_on_item_drop", reset_vision)
+	RegisterScriptCallback("actor_item_to_slot", record_backpack_slot)
+	RegisterScriptCallback("actor_item_to_ruck", record_backpack_slot)
+	RegisterScriptCallback("on_option_change", on_option_change)
+	on_option_change()
+end

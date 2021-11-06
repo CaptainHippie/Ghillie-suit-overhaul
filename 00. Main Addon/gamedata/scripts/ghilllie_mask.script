@@ -1,0 +1,73 @@
+mask_enabled = true
+
+function on_game_load()
+mask_enabled = ghillie_stealth_mcm.get_config("enable_mask")
+end
+
+local gmask
+function init_mask()
+	local hud = get_hud()
+	local cs = hud:GetCustomStatic("indicator_drink")
+		if (cs == nil) then
+		hud:AddCustomStatic("indicator_drink", true)
+		local xml = CScriptXmlInit()
+		xml:ParseFile("ui_ghillie_mask.xml")
+		cs = hud:GetCustomStatic("indicator_drink")
+		local w = cs:wnd()
+		local pos = w:GetWndPos()
+		if pos.x ~= 0 then
+			pos.x = 0
+			pos.y = 0
+			w:SetWndPos(pos)
+		end
+		gmask = xml:InitStatic("gmask", w )
+		gmask:Show(false)
+	end
+end
+
+function mask_on_load()
+init_mask()
+bak = db.actor:item_in_slot(13)
+	if bak and (bak:section() == "ghillie_outfit") and mask_enabled then
+	gmask:Show(true)
+	else gmask:Show(false)
+	end
+end
+
+function on_option_change()
+mask_enabled = ghillie_stealth_mcm.get_config("enable_mask")
+check_ghil()
+	if mask_enabled and g_flag  and gmask ~= nil then
+	gmask:Show(true)
+	end
+	if (not mask_enabled)  and gmask ~= nil then
+	gmask:Show(false)
+	end
+end
+
+g_flag = false
+function check_ghil()
+	local bk = db.actor:item_in_slot(13)
+	g_flag = bk and (bk:section() == "ghillie_outfit")
+end
+
+function mask_equip(ghil)
+	if ghil ~= nil and (ghil:section() == "ghillie_outfit") and gmask ~= nil and mask_enabled then
+	gmask:Show(true)
+	end
+end
+
+function mask_unequip(ghil)
+	if ghil ~= nil and (ghil:section() == "ghillie_outfit") and gmask ~= nil then
+	gmask:Show(false)
+	end
+end
+
+function on_game_start()
+	RegisterScriptCallback("actor_item_to_ruck", mask_unequip)
+	RegisterScriptCallback("actor_on_item_drop", mask_unequip)
+	RegisterScriptCallback("actor_item_to_slot", mask_equip)
+	RegisterScriptCallback("on_option_change", on_option_change)
+	RegisterScriptCallback("actor_on_first_update", mask_on_load)
+	on_game_load()
+end

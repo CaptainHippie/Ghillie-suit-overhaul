@@ -1,0 +1,29 @@
+
+I. For editing the surfaces :
+	1). open gamedata/scripts/trans_outfit.script or visual_memory_manager.script if you're using stealth addon patch
+	2). Ctrl + F search for "camo_surfaces" or scroll till you see it
+         
+		 camo_surfaces = {"earth", "dirt", "grass", "bush"}
+
+	these are the material surfaces that enables camoflauges.
+	The other known surfaces are wood, water, metal, tin, gravel, asphalt, tile, concrete, shifer, bricks, cloth, fake, 
+	ladders, glass, sand, setka, stucco, tree, barrel, body, furniture, weapon which are not included for obvious reasons. 
+	3). You can add/remove/replace surfaces following the same syntax of double quotes,
+	spaces and comas
+
+
+	For those who don't have MCM(big mistake, get it now) :
+	change the values in at the top of the script
+	ghil_blindness_koeff = 60
+	ghil_fov_koeff = 130
+
+	The trans_outfit.script isn't too hard to understand, you can change the multipliers for stance_fov, weather_fov, 
+	stance_k, weather_mult, time_mult to customize your experience
+
+II. For patching any conflict issues:
+	patches for HD models and THAP are provided, but if you have another outfit addon that conflicts with o_lcs.ltx, 
+	open the file from my addon, just scroll to the bottom and copy everything starting from    
+	 "[ghillie_outfit]:outfit_base"    
+	and just paste it over it's corresponding section in your current one(be sure to take a backup just in case)
+
+
