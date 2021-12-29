@@ -242,17 +242,17 @@ end
 local ghil_blindness_koeff = 100
 
 function on_option_change()
-	ghil_blindness_koeff = ghillie_stealth_mcm.get_config("visibility")
-	mcm_dist_mult = stealth_mcm.get_config("distance")
-	mcm_vel_mult = stealth_mcm.get_config("velocity")
-	mcm_weight_mult = stealth_mcm.get_config("weight")
-	mcm_lum_mult = stealth_mcm.get_config("luminocity")
-	mcm_low = stealth_mcm.get_config("low_crouch")
-	mcm_crouch = stealth_mcm.get_config("crouch")
-	enable_debug = stealth_mcm.get_config("debugx")
-	michiko_patch = stealth_mcm.get_config("michiko_patch")
-	alert_mult = ghillie_stealth_mcm.get_config("firing_alert")
-	mcm_memory = stealth_mcm.get_config("memory")
+	ghil_blindness_koeff = ghillie_stealth_mcm.get_config("visibility") or 100
+	mcm_dist_mult = stealth_mcm.get_config("distance") or 1
+	mcm_vel_mult = stealth_mcm.get_config("velocity") or 1
+	mcm_weight_mult = stealth_mcm.get_config("weight") or 1
+	mcm_lum_mult = stealth_mcm.get_config("luminocity") or 1
+	mcm_low = stealth_mcm.get_config("low_crouch") or 0.25
+	mcm_crouch = stealth_mcm.get_config("crouch") or 0.4
+	enable_debug = stealth_mcm.get_config("debugx") or false
+	michiko_patch = stealth_mcm.get_config("michiko_patch") or false
+	alert_mult = ghillie_stealth_mcm.get_config("firing_alert") or 60
+	mcm_memory = stealth_mcm.get_config("memory") or 1
 end
 
 local g_flag = false
