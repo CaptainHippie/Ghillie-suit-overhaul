@@ -1,4 +1,4 @@
-===GHILLIE SUIT OVERHAUL v1.5 ===
+===GHILLIE SUIT OVERHAUL v1.6 ===
 Ghillie suit can be worn over other armors, reworked detection method and other tweaks to make the ghillie suit more useful nor too OP
 
 Conflicts: addons which modify o_lcs.ltx, visual_memory_manager.script and trans_outfit.script. Patches are provided for Stealth, 
@@ -41,6 +41,7 @@ known bugs/drawbacks
 3. It seems random but ghillie sometimes gets unequipped on level change and maybe even on loading a save
 
 Changelog :
+v1.6 - updated patch for stealth 2.1.2
 v1.5 - updated patch for stealth 2.0 and updated gamemtl.xr (enemies dont see through bushes)
 v1.4 - small hotfix to fix ghillie unequipping bug permanently and made some tweaks to the formula
 v1.3 hotfix - fixed loading/level change bug permanently 
